@@ -22,6 +22,13 @@ volumes:
       o: bind
       device: ${DATA_PATH}/mariadb
 
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH}/wordpress
+
 services:
   mariadb:
     build:
@@ -37,4 +44,23 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - inception
+    restart: unless-stopped
+
+  wordpress:
+    build:
+      context: requirements/wordpress
+      dockerfile: Dockerfile
+    container_name: wordpress
+    image: wordpress
+    env_file: .env
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_user_password
+    volumes:
+      - wordpress:/var/www/wordpress
+    networks:
+      - inception
+    depends_on:
+      - mariadb
     restart: unless-stopped

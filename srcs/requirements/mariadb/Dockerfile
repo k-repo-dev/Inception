@@ -6,7 +6,7 @@ RUN apk update && apk add --no-cache \
 
 RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
-COPY conf/my.cnf /etc/my.cnf.d/my.cnf
+COPY conf/my.cnf /etc/my.cnf
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
