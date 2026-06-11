@@ -46,6 +46,10 @@ SQLEOF
     kill "$TEMP_PID"
     wait "$TEMP_PID" 2>/dev/null || true
     echo "[db] Init complete."
+
+    echo "[db] Writing healthcheck config..."
+    printf '[client]\nuser=root\npassword=%s\n' "${DB_ROOT_PASSWORD}" > /var/lib/mysql/.healthcheck.cnf
+    chmod 600 /var/lib/mysql/.healthcheck.cnf
 else
     echo "[db] Data directory exists, skipping init."
 fi

@@ -32,14 +32,6 @@ if [ ! -f "$WP_DIR/wp-config.php" ]; then
         --allow-root
 fi
 
-echo "[wp] Waiting for MariaDB on port 3306..."
-for i in $(seq 1 30); do
-    nc -z mariadb 3306 2>/dev/null && break
-    echo "[wp] Waiting... ($i)"
-    sleep 2
-done
-echo "[wp] MariaDB ready."
-
 if ! php -d memory_limit=256M /usr/local/bin/wp core is-installed \
     --path="$WP_DIR" --allow-root 2>/dev/null; then
     echo "[wp] Installing WordPress..."

@@ -1,5 +1,3 @@
-version: '3.8'
-
 secrets:
   db_password:
     file: ../secrets/db_password.txt
@@ -20,14 +18,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/mariadb
-
+      device: $HOME/data/mariadb
   wordpress:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/wordpress
+      device: $HOME/data/wordpress
 
 services:
   mariadb:
@@ -44,7 +41,14 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - inception
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "--defaults-extra-file=/var/lib/mysql/.healthcheck.cnf", "ping"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
+    init: true
 
   wordpress:
     build:
@@ -62,5 +66,36 @@ services:
     networks:
       - inception
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/www/wordpress/wp-login.php"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
+    init: true
+
+  nginx:
+    build:
+      context: requirements/nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    image: nginx
+    env_file: .env
+    volumes:
+      - wordpress:/var/www/wordpress
+    networks:
+      - inception
+    ports:
+      - "443:443"
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    init: true
