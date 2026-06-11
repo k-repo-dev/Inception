@@ -9,7 +9,7 @@ all:
 	docker compose -f $(DOCKER_COMPOSE) up --build -d
 
 up:
-	docker compose -f $(DOCKER_COMPOSE) up -d
+	docker compose -f $(DOCKER_COMPOSE) up --build -d
 
 down:
 	docker compose -f $(DOCKER_COMPOSE) down

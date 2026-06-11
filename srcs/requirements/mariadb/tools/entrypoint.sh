@@ -11,6 +11,9 @@ DB_PASSWORD=$(read_secret "${MYSQL_PASSWORD_FILE}")
 DB_ROOT_PASSWORD=$(read_secret "${MYSQL_ROOT_PASSWORD_FILE}")
 echo "[db] Secrets OK"
 
+# Always fix ownership — survives across restarts and ownership changes
+chown -R mysql:mysql /var/lib/mysql
+
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "[db] First run — initialising..."
 
