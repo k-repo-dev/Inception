@@ -43,7 +43,7 @@ services:
       - inception
     healthcheck:
       test: ["CMD", "mariadb-admin", "--defaults-extra-file=/var/lib/mysql/.healthcheck.cnf", "ping"]
-      start_period: 10s
+      start_period: 60s
       interval: 10s
       timeout: 5s
       retries: 5

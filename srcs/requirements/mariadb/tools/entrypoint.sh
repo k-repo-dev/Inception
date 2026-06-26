@@ -11,6 +11,11 @@ DB_PASSWORD=$(read_secret "${MYSQL_PASSWORD_FILE}")
 DB_ROOT_PASSWORD=$(read_secret "${MYSQL_ROOT_PASSWORD_FILE}")
 echo "[db] Secrets OK"
 
+echo "[db] Writing healthcheck config..."
+printf '[client]\nuser=root\npassword=%s\nsocket=/run/mysqld/mysqld.sock\n' "${DB_ROOT_PASSWORD}" > /var/lib/mysql/.healthcheck.cnf
+chown mysql:mysql /var/lib/mysql/.healthcheck.cnf
+chmod 600 /var/lib/mysql/.healthcheck.cnf
+
 # Always fix ownership — survives across restarts and ownership changes
 chown -R mysql:mysql /var/lib/mysql
 
@@ -50,9 +55,6 @@ SQLEOF
     wait "$TEMP_PID" 2>/dev/null || true
     echo "[db] Init complete."
 
-    echo "[db] Writing healthcheck config..."
-    printf '[client]\nuser=root\npassword=%s\n' "${DB_ROOT_PASSWORD}" > /var/lib/mysql/.healthcheck.cnf
-    chmod 600 /var/lib/mysql/.healthcheck.cnf
 else
     echo "[db] Data directory exists, skipping init."
 fi
